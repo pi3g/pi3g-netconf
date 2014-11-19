@@ -140,8 +140,6 @@ func main() {
 	iface = os.Getenv("INTERFACE")
 	if iface == "wlan0" {
 		subnet = "42"
-	} else if iface == "eth1" {
-		subnet = "43"
 	}
 	if subnet == "" {
 		debug("Not our interface.")
