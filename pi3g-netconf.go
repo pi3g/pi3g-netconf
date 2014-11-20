@@ -138,8 +138,6 @@ func down(subnet string) error {
 }
 
 func main() {
-	debug("Device plugged in, running net configurator version ", version)
-
 	// which interface changed?
 	subnet := ""
 	iface := os.Getenv("IFACE")
@@ -151,7 +149,6 @@ func main() {
 		subnet = "42"
 	}
 	if subnet == "" {
-		debug("Not our interface.")
 		os.Exit(0)
 	}
 
@@ -170,7 +167,6 @@ func main() {
 		action = STOP
 	}
 	if action == NONE {
-		debug("Unknown action.")
 		os.Exit(0)
 	}
 
@@ -193,6 +189,8 @@ func main() {
 		os.Exit(1)
 	}
 	defer syscall.Flock(int(flock.Fd()), syscall.LOCK_UN)
+	debugf("*** Configuring (v%s)", version)
+	defer debug("*** Configuration done")
 
 	// change tor config
 	if action == START {
