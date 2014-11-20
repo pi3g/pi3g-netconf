@@ -36,6 +36,13 @@ func restartService(service string) error {
 	return err
 }
 
+// reload a service configuration
+func reloadService(service string) error {
+	out, err := exec.Command(serviceBin, service, "reload").CombinedOutput()
+	debugf("reloading %s:\n%s", service, out)
+	return err
+}
+
 // stop a service (e.g. hostapd, tor)
 func stopService(service string) error {
 	out, err := exec.Command(serviceBin, service, "stop").CombinedOutput()
@@ -197,6 +204,7 @@ func main() {
 		debug(err)
 		os.Exit(1)
 	}
+	reloadService("tor")
 
 	// restart the appropriate services
 	// Hostapd is rather finicky, which is why the ip configuration is done
