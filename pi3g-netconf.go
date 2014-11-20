@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -12,6 +13,7 @@ var version = "0.2.6"
 
 const (
 	confPath = "/etc/tor/torrc"
+	lockPath = "/tmp/pi3g-netconf-lock"
 )
 
 const (
@@ -165,8 +167,27 @@ func main() {
 		os.Exit(0)
 	}
 
+	// lock angainst concurrent instances of this program
+	flock, err := os.Create(lockPath)
+	if err != nil {
+		debug(err)
+		os.Exit(1)
+	}
+	defer flock.Close()
+	for {
+		err = syscall.Flock(int(flock.Fd()), syscall.LOCK_EX)
+		if err == syscall.EINTR {
+			continue
+		}
+		break
+	}
+	if err != nil {
+		debug(err)
+		os.Exit(1)
+	}
+	defer syscall.Flock(int(flock.Fd()), syscall.LOCK_UN)
+
 	// change tor config
-	var err error
 	if action == START {
 		err = up(subnet)
 	} else if action == STOP {
